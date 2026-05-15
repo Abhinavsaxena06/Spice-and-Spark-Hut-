@@ -142,8 +142,7 @@ nav a {
 .image-space {
   min-height: 470px;
   border-radius: 42px;
-  background:
-    linear-gradient(135deg, #ffd8ae, #fff1df);
+  background: linear-gradient(135deg, #ffd8ae, #fff1df);
   border: 2px dashed #d98648;
   display: grid;
   place-items: center;
@@ -294,11 +293,32 @@ section {
   color: #e86b22;
   display: block;
   margin: 15px 0 8px;
+  font-size: 20px;
 }
 
 .review-card span {
   color: #8a6650;
   font-size: 14px;
+}
+
+.review-actions {
+  margin-top: 18px;
+  display: flex;
+  gap: 10px;
+}
+
+.review-actions button {
+  border: none;
+  padding: 9px 14px;
+  border-radius: 999px;
+  font-weight: 800;
+  cursor: pointer;
+  background: #2b170f;
+  color: white;
+}
+
+.review-actions button:last-child {
+  background: #d62828;
 }
 
 .review-form {
@@ -325,6 +345,65 @@ section {
 .review-form textarea {
   min-height: 120px;
   resize: none;
+}
+
+.rating-box {
+  margin-bottom: 18px;
+}
+
+.rating-box label {
+  display: block;
+  margin-bottom: 10px;
+  font-weight: 700;
+}
+
+.stars {
+  display: flex;
+  gap: 10px;
+  font-size: 34px;
+  cursor: pointer;
+}
+
+.star {
+  color: #d9c3b3;
+  transition: 0.2s;
+}
+
+.star.active {
+  color: #ffb400;
+  transform: scale(1.12);
+}
+
+#ratingText {
+  margin-top: 8px;
+  color: #8a6650;
+}
+
+#reviewMessage {
+  margin-top: 18px;
+  border-radius: 22px;
+  padding: 18px;
+  display: none;
+  font-weight: 700;
+  line-height: 1.6;
+}
+
+.good-review {
+  background: #fff4db;
+  color: #8a5a00;
+  border: 1px solid #ffd36e;
+}
+
+.mid-review {
+  background: #eef4ff;
+  color: #325aa8;
+  border: 1px solid #9fc0ff;
+}
+
+.bad-review {
+  background: #ffe9e9;
+  color: #a53737;
+  border: 1px solid #ffb2b2;
 }
 
 .contact {
@@ -468,23 +547,12 @@ footer {
   .gallery-grid {
     grid-template-columns: 1fr;
   }
+
+  .stars {
+    font-size: 30px;
+  }
+
   .review-actions {
-  margin-top: 18px;
-  display: flex;
-  gap: 10px;
-}
-
-.review-actions button {
-  border: none;
-  padding: 9px 14px;
-  border-radius: 999px;
-  font-weight: 800;
-  cursor: pointer;
-  background: #2b170f;
-  color: white;
-}
-
-.review-actions button:last-child {
-  background: #d62828;
-}
+    flex-direction: column;
+  }
 }

@@ -32,6 +32,7 @@
   <div class="hero-text">
     <p class="mini">Modern Café • Fresh Food • Kharar</p>
     <h1>Fresh taste, warm vibes & homely meals.</h1>
+
     <p class="desc">
       Welcome to Spice & Spark Hut Restaurant — a cozy place for fresh meals,
       tasty snacks, tea, thali and quick service.
@@ -45,6 +46,7 @@
 
   <div class="hero-visual">
     <div class="image-space">Add Main Food Image</div>
+
     <div class="open-card">
       <p>Open Daily</p>
       <strong>11:00 AM – 12:00 AM</strong>
@@ -56,6 +58,7 @@
   <div class="about-card">
     <p class="mini">Why Choose Us</p>
     <h2>A warm place for everyday cravings</h2>
+
     <p>
       We serve fresh, satisfying and value-for-money food with a comfortable
       restaurant experience for families, students and local food lovers.
@@ -138,31 +141,32 @@
   <p class="mini center">Customer Reviews</p>
   <h2 class="center-title">What people love about us</h2>
 
-  <div class="review-grid" id="reviewList">
-    <div class="review-card">
-      <p>“The food feels fresh and homely. A good place for a quick meal with comfortable service.”</p>
-      <strong>★★★★★</strong>
-      <span>- Local Customer</span>
-    </div>
-
-    <div class="review-card">
-      <p>“Nice taste, good quantity and friendly staff. Perfect for snacks and daily food.”</p>
-      <strong>★★★★★</strong>
-      <span>- Happy Visitor</span>
-    </div>
-
-    <div class="review-card">
-      <p>“Warm ambience and tasty food. The thali and tea are worth trying.”</p>
-      <strong>★★★★★</strong>
-      <span>- Food Lover</span>
-    </div>
-  </div>
+  <div class="review-grid" id="reviewList"></div>
 
   <div class="review-form">
     <h3>Write Your Review</h3>
+
     <input type="text" id="userName" placeholder="Your name" />
+
+    <div class="rating-box">
+      <label>Rate your experience</label>
+
+      <div class="stars" id="starContainer">
+        <span class="star" data-value="1">★</span>
+        <span class="star" data-value="2">★</span>
+        <span class="star" data-value="3">★</span>
+        <span class="star" data-value="4">★</span>
+        <span class="star" data-value="5">★</span>
+      </div>
+
+      <p id="ratingText">No rating selected</p>
+    </div>
+
     <textarea id="userReview" placeholder="Write your review here..."></textarea>
+
     <button id="submitReview">Submit Review</button>
+
+    <div id="reviewMessage"></div>
   </div>
 </section>
 
@@ -173,6 +177,7 @@
   <div class="contact-layout">
     <div class="contact-info">
       <h3>Spice & Spark Hut Restaurant</h3>
+
       <p><b>Address:</b> Kharar, Punjab</p>
       <p><b>Phone:</b> +91 62848 64855</p>
       <p><b>Opening Hours:</b> 11:00 AM – 12:00 AM</p>
