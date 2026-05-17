@@ -1,17 +1,35 @@
+const API_URL = "http://localhost:5000/api/reviews";
+
 const menuBtn = document.getElementById("menuBtn");
 const navLinks = document.getElementById("navLinks");
-const exploreBtn = document.getElementById("exploreBtn");
-const moreMenu = document.getElementById("moreMenu");
 const submitReview = document.getElementById("submitReview");
 const reviewList = document.getElementById("reviewList");
 const stars = document.querySelectorAll(".star");
 const reviewMessage = document.getElementById("reviewMessage");
+const improvementBox = document.getElementById("improvementBox");
+const improvementText = document.getElementById("improvementText");
+const submitImprovement = document.getElementById("submitImprovement");
 
 let selectedRating = 0;
 
-/* ==========================
-   NAVBAR MENU
-========================== */
+/* =========================
+   REVIEW OWNER KEY
+========================= */
+
+function getReviewKey() {
+  let key = localStorage.getItem("reviewKey");
+
+  if (!key) {
+    key = crypto.randomUUID();
+    localStorage.setItem("reviewKey", key);
+  }
+
+  return key;
+}
+
+/* =========================
+   MOBILE NAVBAR
+========================= */
 
 menuBtn.addEventListener("click", () => {
   navLinks.classList.toggle("active");
@@ -29,41 +47,20 @@ document.querySelectorAll("nav a").forEach((link) => {
   });
 });
 
-/* ==========================
-   EXPLORE MORE MENU
-========================== */
-
-exploreBtn.addEventListener("click", () => {
-  moreMenu.classList.toggle("show");
-
-  exploreBtn.textContent =
-    moreMenu.classList.contains("show")
-      ? "Show Less Menu"
-      : "Explore More Menu";
-});
-
-/* ==========================
+/* =========================
    STAR RATING
-========================== */
+========================= */
 
 stars.forEach((star) => {
   star.addEventListener("click", () => {
-    selectedRating = Number(
-      star.dataset.value
-    );
+    selectedRating = Number(star.dataset.value);
 
     stars.forEach((s) =>
       s.classList.remove("active")
     );
 
-    for (
-      let i = 0;
-      i < selectedRating;
-      i++
-    ) {
-      stars[i].classList.add(
-        "active"
-      );
+    for (let i = 0; i < selectedRating; i++) {
+      stars[i].classList.add("active");
     }
 
     document.getElementById(
@@ -73,13 +70,12 @@ stars.forEach((star) => {
   });
 });
 
-/* ==========================
+/* =========================
    REVIEW FEEDBACK MESSAGE
-========================== */
+========================= */
 
 function showReviewMessage(rating) {
-  reviewMessage.style.display =
-    "block";
+  reviewMessage.style.display = "block";
 
   reviewMessage.classList.remove(
     "good-review",
@@ -87,80 +83,118 @@ function showReviewMessage(rating) {
     "bad-review"
   );
 
+  improvementBox.style.display = "none";
+
   if (rating >= 4) {
-    reviewMessage.classList.add(
-      "good-review"
-    );
+    reviewMessage.classList.add("good-review");
 
     reviewMessage.innerHTML = `
-      🥰✨ <strong>Thank you so much!</strong><br>
+      <div class="message-gif">
+        🥰🍽️✨
+      </div>
+
+      <strong>
+        Thank you so much!
+      </strong>
+      <br>
+
       We are really happy that you enjoyed your experience at 
-      <b>Spice & Spark Hut</b> 💛<br><br>
-      Hope to serve you again soon 🍽️
+      <b>Spice & Spark Hut</b> 💛
+      <br><br>
+
+      Your love means a lot to us.
+      Hope to serve you again soon!
     `;
   }
 
   else if (rating === 3) {
-    reviewMessage.classList.add(
-      "mid-review"
-    );
+    reviewMessage.classList.add("mid-review");
 
     reviewMessage.innerHTML = `
-      😊 <strong>Thank you for your feedback!</strong><br>
-      We are glad you visited us 💫<br><br>
-      We'll work harder to make your next experience even better.
+      <div class="message-gif">
+        😊☕
+      </div>
+
+      <strong>
+        Thank you for your feedback!
+      </strong>
+      <br>
+
+      We are glad you visited us 💫
+      <br><br>
+
+      We'll keep improving to make
+      your next experience even better.
     `;
   }
 
   else {
-    reviewMessage.classList.add(
-      "bad-review"
-    );
+    reviewMessage.classList.add("bad-review");
 
     reviewMessage.innerHTML = `
-      😔 <strong>We're really sorry.</strong><br>
-      Your experience matters a lot to us 💛<br><br>
-      Thank you for your honest feedback — we will definitely improve and hope you visit us again 🙏
+      <div class="message-gif">
+        😔🙏
+      </div>
+
+      <strong>
+        We're really sorry.
+      </strong>
+      <br>
+
+      Your experience matters a lot to us 💛
+      <br><br>
+
+      Please tell us what we can improve
+      so we can serve you better next time.
     `;
+
+    improvementBox.style.display = "block";
   }
 
-  reviewMessage.scrollIntoView({
-    behavior: "smooth",
-    block: "center"
-  });
+  /* AUTO SCROLL TO MESSAGE */
+
+  setTimeout(() => {
+    reviewMessage.scrollIntoView({
+      behavior: "smooth",
+      block: "center"
+    });
+  }, 200);
 }
 
-/* ==========================
-   LOCAL STORAGE
-========================== */
+/* =========================
+   FETCH REVIEWS
+========================= */
 
-function getSavedReviews() {
-  return (
-    JSON.parse(
-      localStorage.getItem(
-        "restaurantReviews"
-      )
-    ) || []
-  );
+async function fetchReviews() {
+  try {
+    const response = await fetch(API_URL);
+    const reviews = await response.json();
+
+    reviewList.innerHTML = "";
+
+    reviews.forEach((review) => {
+      addReviewToPage(review);
+    });
+  } catch (error) {
+    console.error(
+      "Error fetching reviews:",
+      error
+    );
+  }
 }
 
-function saveReviews(reviews) {
-  localStorage.setItem(
-    "restaurantReviews",
-    JSON.stringify(reviews)
-  );
-}
+/* =========================
+   ADD REVIEW CARD
+========================= */
 
-/* ==========================
-   ADD REVIEW TO PAGE
-========================== */
+function addReviewToPage(review) {
+  const userReviewKey =
+    getReviewKey();
 
-function addReviewToPage(
-  name,
-  text,
-  rating,
-  index
-) {
+  const isOwnReview =
+    review.reviewKey ===
+    userReviewKey;
+
   const reviewCard =
     document.createElement("div");
 
@@ -168,102 +202,73 @@ function addReviewToPage(
     "review-card";
 
   reviewCard.innerHTML = `
-    <p>“${text}”</p>
+    <p>
+      “${review.text}”
+    </p>
 
     <strong>
-      ${"★".repeat(rating)}
-      ${"☆".repeat(5 - rating)}
+      ${"★".repeat(review.rating)}
+      ${"☆".repeat(5 - review.rating)}
     </strong>
 
-    <span>- ${name}</span>
+    <span>
+      - ${review.name}
+    </span>
 
     <div class="review-actions">
-      <button onclick="editReview(${index})">
-        Edit
+
+      ${
+        isOwnReview
+          ? `
+          <button
+            onclick="editReview(
+              '${review._id}',
+              '${review.name}',
+              '${review.text}',
+              ${review.rating}
+            )"
+          >
+            Edit
+          </button>
+        `
+          : ""
+      }
+
+      ${
+        isOwnReview
+          ? `
+          <button
+            onclick="deleteOwnReview(
+              '${review._id}'
+            )"
+          >
+            Delete
+          </button>
+        `
+          : ""
+      }
+
+      <button
+        onclick="ownerDeleteReview(
+          '${review._id}'
+        )"
+      >
+        Owner Delete
       </button>
 
-      <button onclick="deleteReview(${index})">
-        Delete
-      </button>
     </div>
   `;
 
-  reviewList.appendChild(
-    reviewCard
-  );
+  reviewList.appendChild(reviewCard);
 }
 
-/* ==========================
-   DEFAULT REVIEWS
-========================== */
-
-function loadDefaultReviews() {
-  const defaultReviews = `
-    <div class="review-card">
-      <p>
-      “The food feels fresh and homely. 
-      A good place for a quick meal with comfortable service.”
-      </p>
-
-      <strong>★★★★★</strong>
-
-      <span>- Local Customer</span>
-    </div>
-
-    <div class="review-card">
-      <p>
-      “Nice taste, good quantity and friendly staff.
-      Perfect for snacks and daily food.”
-      </p>
-
-      <strong>★★★★★</strong>
-
-      <span>- Happy Visitor</span>
-    </div>
-
-    <div class="review-card">
-      <p>
-      “Warm ambience and tasty food.
-      The thali and tea are worth trying.”
-      </p>
-
-      <strong>★★★★★</strong>
-
-      <span>- Food Lover</span>
-    </div>
-  `;
-
-  reviewList.innerHTML =
-    defaultReviews;
-}
-
-/* ==========================
-   LOAD SAVED REVIEWS
-========================== */
-
-function loadReviews() {
-  const savedReviews =
-    getSavedReviews();
-
-  savedReviews.forEach(
-    (review, index) => {
-      addReviewToPage(
-        review.name,
-        review.text,
-        review.rating,
-        index
-      );
-    }
-  );
-}
-
-/* ==========================
+/* =========================
    SUBMIT REVIEW
-========================== */
+========================= */
 
 submitReview.addEventListener(
   "click",
-  () => {
+  async () => {
     const name =
       document
         .getElementById(
@@ -278,10 +283,7 @@ submitReview.addEventListener(
         )
         .value.trim();
 
-    if (
-      name === "" ||
-      text === ""
-    ) {
+    if (!name || !text) {
       alert(
         "Please fill all fields."
       );
@@ -297,153 +299,286 @@ submitReview.addEventListener(
       return;
     }
 
-    const reviews =
-      getSavedReviews();
+    try {
+      const response =
+        await fetch(
+          API_URL,
+          {
+            method: "POST",
+            headers: {
+              "Content-Type":
+                "application/json"
+            },
+            body: JSON.stringify({
+              name,
+              text,
+              rating:
+                selectedRating,
+              reviewKey:
+                getReviewKey()
+            })
+          }
+        );
 
-    reviews.push({
-      name,
-      text,
-      rating:
+      const data =
+        await response.json();
+
+      if (!response.ok) {
+        alert(
+          data.message ||
+            "Failed to submit review."
+        );
+        return;
+      }
+
+      showReviewMessage(
         selectedRating
-    });
+      );
 
-    saveReviews(reviews);
+      document.getElementById(
+        "userName"
+      ).value = "";
 
-    reviewList.innerHTML = "";
+      document.getElementById(
+        "userReview"
+      ).value = "";
 
-    loadDefaultReviews();
-    loadReviews();
+      document.getElementById(
+        "ratingText"
+      ).textContent =
+        "No rating selected";
 
-    showReviewMessage(
-      selectedRating
-    );
+      stars.forEach((s) =>
+        s.classList.remove(
+          "active"
+        )
+      );
 
-    document.getElementById(
-      "userName"
-    ).value = "";
+      selectedRating = 0;
 
-    document.getElementById(
-      "userReview"
-    ).value = "";
+      fetchReviews();
+    } catch (error) {
+      console.error(
+        "Submit error:",
+        error
+      );
 
-    stars.forEach((s) =>
-      s.classList.remove(
-        "active"
-      )
-    );
-
-    selectedRating = 0;
-
-    document.getElementById(
-      "ratingText"
-    ).textContent =
-      "No rating selected";
+      alert(
+        "Backend is not connected. Make sure npm run dev is running."
+      );
+    }
   }
 );
 
-/* ==========================
-   DELETE REVIEW
-========================== */
+/* =========================
+   EDIT REVIEW
+========================= */
 
-function deleteReview(index) {
+async function editReview(
+  id,
+  oldName,
+  oldText,
+  oldRating
+) {
+  const name = prompt(
+    "Edit your name:",
+    oldName
+  );
+
+  const text = prompt(
+    "Edit your review:",
+    oldText
+  );
+
+  const rating = prompt(
+    "Edit rating (1-5):",
+    oldRating
+  );
+
+  if (
+    !name ||
+    !text ||
+    Number(rating) < 1 ||
+    Number(rating) > 5
+  ) {
+    alert(
+      "Invalid review details."
+    );
+    return;
+  }
+
+  const response =
+    await fetch(
+      `${API_URL}/${id}`,
+      {
+        method: "PUT",
+        headers: {
+          "Content-Type":
+            "application/json"
+        },
+        body: JSON.stringify({
+          name,
+          text,
+          rating:
+            Number(rating),
+          reviewKey:
+            getReviewKey()
+        })
+      }
+    );
+
+  const data =
+    await response.json();
+
+  if (!response.ok) {
+    alert(data.message);
+    return;
+  }
+
+  alert(
+    "Review updated successfully."
+  );
+
+  fetchReviews();
+}
+
+/* =========================
+   DELETE OWN REVIEW
+========================= */
+
+async function deleteOwnReview(
+  id
+) {
   const confirmDelete =
     confirm(
-      "Are you sure you want to delete this review?"
+      "Delete your review?"
     );
 
   if (!confirmDelete)
     return;
 
-  const reviews =
-    getSavedReviews();
-
-  reviews.splice(
-    index,
-    1
-  );
-
-  saveReviews(reviews);
-
-  reviewList.innerHTML = "";
-
-  loadDefaultReviews();
-  loadReviews();
-}
-
-/* ==========================
-   EDIT REVIEW
-========================== */
-
-function editReview(index) {
-  const reviews =
-    getSavedReviews();
-
-  const review =
-    reviews[index];
-
-  const newName =
-    prompt(
-      "Edit your name:",
-      review.name
+  const response =
+    await fetch(
+      `${API_URL}/${id}`,
+      {
+        method: "DELETE",
+        headers: {
+          "Content-Type":
+            "application/json"
+        },
+        body: JSON.stringify({
+          reviewKey:
+            getReviewKey()
+        })
+      }
     );
 
-  const newText =
-    prompt(
-      "Edit your review:",
-      review.text
-    );
+  const data =
+    await response.json();
 
-  const newRating =
-    prompt(
-      "Edit rating (1-5):",
-      review.rating
-    );
-
-  if (
-    newName === null ||
-    newText === null ||
-    newRating === null
-  ) {
+  if (!response.ok) {
+    alert(data.message);
     return;
   }
-
-  const ratingNumber =
-    Number(newRating);
-
-  if (
-    ratingNumber < 1 ||
-    ratingNumber > 5
-  ) {
-    alert(
-      "Rating must be between 1 and 5."
-    );
-    return;
-  }
-
-  reviews[index] = {
-    name:
-      newName.trim(),
-    text:
-      newText.trim(),
-    rating:
-      ratingNumber
-  };
-
-  saveReviews(reviews);
-
-  reviewList.innerHTML = "";
-
-  loadDefaultReviews();
-  loadReviews();
 
   alert(
-    "Review updated successfully."
+    "Review deleted successfully."
   );
+
+  fetchReviews();
 }
 
-/* ==========================
-   INITIAL LOAD
-========================== */
+/* =========================
+   OWNER DELETE
+========================= */
 
-loadDefaultReviews();
-loadReviews();
+async function ownerDeleteReview(
+  id
+) {
+  const ownerPassword =
+    document
+      .getElementById(
+        "ownerPassword"
+      )
+      ?.value.trim();
+
+  if (!ownerPassword) {
+    alert(
+      "Enter owner password first."
+    );
+    return;
+  }
+
+  const confirmDelete =
+    confirm(
+      "Owner: delete this review?"
+    );
+
+  if (!confirmDelete)
+    return;
+
+  const response =
+    await fetch(
+      `${API_URL}/${id}`,
+      {
+        method: "DELETE",
+        headers: {
+          "Content-Type":
+            "application/json"
+        },
+        body: JSON.stringify({
+          ownerSecret:
+            ownerPassword
+        })
+      }
+    );
+
+  const data =
+    await response.json();
+
+  if (!response.ok) {
+    alert(data.message);
+    return;
+  }
+
+  alert(
+    "Owner deleted the review."
+  );
+
+  fetchReviews();
+}
+
+/* =========================
+   IMPROVEMENT SUGGESTION
+========================= */
+
+submitImprovement.addEventListener(
+  "click",
+  () => {
+    const suggestion =
+      improvementText.value.trim();
+
+    if (!suggestion) {
+      alert(
+        "Please write your improvement suggestion."
+      );
+      return;
+    }
+
+    alert(
+      "Thank you for your suggestion. We will work on it."
+    );
+
+    improvementText.value =
+      "";
+
+    improvementBox.style.display =
+      "none";
+  }
+);
+
+/* =========================
+   INITIAL LOAD
+========================= */
+
+fetchReviews();
